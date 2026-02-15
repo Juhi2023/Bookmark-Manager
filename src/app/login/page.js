@@ -12,8 +12,9 @@ function Login() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let supabase = createSupabaseBrowserClient()
     const getSession = async () => {
-      const { data: { session } } = await createSupabaseBrowserClient.auth.getSession();
+      const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
       setLoading(false); // ✅ stop loading after checking
     };
@@ -22,7 +23,7 @@ function Login() {
 
     const {
       data: { subscription },
-    } = createSupabaseBrowserClient.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
     });
 
@@ -52,7 +53,7 @@ function Login() {
         </div>
 
         <Auth
-          supabaseClient={createSupabaseBrowserClient}
+          supabaseClient={createSupabaseBrowserClient()}
           providers={["google"]}
           onlyThirdPartyProviders
           redirectTo={process.env.NEXT_PUBLIC_URL + "/auth/callback"}

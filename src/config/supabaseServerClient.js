@@ -13,18 +13,10 @@ export async function createSupabaseServerClient() {
           return cookieStore.get(name)?.value
         },
         set(name, value, options) {
-          try {
-            cookieStore.set({ name, value, ...options })
-          } catch (error) {
-            // Handle cookie setting in Server Components
-          }
+          cookieStore.set({ name, value, ...options })
         },
         remove(name, options) {
-          try {
-            cookieStore.set({ name, value: '', ...options })
-          } catch (error) {
-            // Handle cookie removal in Server Components
-          }
+          cookieStore.set({ name, value: '', ...options })
         },
       },
     }

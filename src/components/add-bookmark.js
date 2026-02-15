@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
-import { createSupabaseBrowserClient } from '@/config/supabaseBrowserClient'
 import Button from './button'
 import { HiPlus } from 'react-icons/hi'
 import InputField from './input-field'
+import { addBookmark } from '@/actions/bookmarks'
 
 export function AddBookmarkForm({ userId }) {
   const [url, setUrl] = useState('')
@@ -20,22 +20,14 @@ export function AddBookmarkForm({ userId }) {
       return
     }
 
-    let finalUrl = url
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      finalUrl = 'https://' + url
       toast.error('Please add valid URL')
       return
     }
 
     setLoading(true)
     try {
-      const supabase = createSupabaseBrowserClient()
-      const { error } = await supabase
-        .from('bookmarks')
-        .insert([{ user_id: userId, url: finalUrl, title }])
-
-      if (error) throw error
-
+      const { data } = await addBookmark({ url, title })
       toast.success('Bookmark added successfully')
       setUrl('')
       setTitle('')
@@ -48,7 +40,7 @@ export function AddBookmarkForm({ userId }) {
   }
 
   return (
-    <div className='border rounded p-4 mt-5 bg-white border-gray-200'>
+    <div className='border rounded-xl p-4 mt-5 bg-white border-gray-200'>
       <div className="pt-6">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
@@ -69,6 +61,8 @@ export function AddBookmarkForm({ userId }) {
           </div>
           <div className='flex justify-end'>
             <Button 
+              loading={loading}
+              disabled={loading}
               text="Add Bookmark"
               icon={<HiPlus/>}
               />

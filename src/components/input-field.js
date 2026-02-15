@@ -9,7 +9,7 @@ const InputField = ({text, type, placeholder, disabled, onChange, value}) => {
             value={value}
             onChange={onChange}
             disabled={disabled} 
-            className="outline-nonee border rounded p-2   flex items-center justify-center"
+            className="outline-none border rounded p-2  bg-gray-50 border-gray-100 focus:border-black-300 flex items-center justify-center"
         />
       );
   };
