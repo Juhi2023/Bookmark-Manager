@@ -56,7 +56,6 @@ function Login() {
           supabaseClient={supabase}
           providers={["google"]}
           onlyThirdPartyProviders
-          redirectTo={process.env.NEXT_PUBLIC_URL + "/auth/callback"}
           appearance={{ theme: ThemeSupa }}
           
         />
