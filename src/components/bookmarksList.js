@@ -1,36 +1,55 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { deleteBookmark, getBookmarks } from "@/actions/bookmarks";
 import { FaExternalLinkAlt } from "react-icons/fa";
 import { MdDeleteOutline } from "react-icons/md";
 import toast from "react-hot-toast";
 
-export default function BookmarksList({user, supabase}) {
-  const [bookmarks, setBookmarks] = useState(null);
-  const [loading, setLoading] = useState(true)
+export default function BookmarksList({ user, supabase }) {
+  const [bookmarks, setBookmarks] = useState([]);
+  const [loading, setLoading] = useState(true);
 
+  const channelRef = useRef(null);     // stores active channel
+  const subscribedRef = useRef(false); // prevents duplicate subscription
+
+  // -------------------------
+  // Load Initial Data
+  // -------------------------
   const loadBookmarks = async () => {
-    setLoading(true);
     try {
+      setLoading(true);
       const { data } = await getBookmarks();
-      setBookmarks(data);
-    } catch (error) {
-      console.error("Error loading bookmarks:", error);
+      setBookmarks(data || []);
+    } catch (err) {
+      console.error("Load error:", err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    let channel;
-  
-    const init = async () => {
-      if (!user) return;
-      await loadBookmarks();
-  
-      channel = supabase
-        .channel("realtime")
+    if (user) loadBookmarks();
+  }, [user]);
+
+  // -------------------------
+  // Stable Realtime Setup
+  // -------------------------
+  useEffect(() => {
+    if (!user || !supabase) return;
+    if (subscribedRef.current) return; // 🚫 prevent re-subscribing
+
+    let isMounted = true;
+
+    const setup = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session || !isMounted) return;
+
+      const channel = supabase
+        .channel(`bookmarks-${user.id}`)
         .on(
           "postgres_changes",
           {
@@ -40,99 +59,106 @@ export default function BookmarksList({user, supabase}) {
             filter: `user_id=eq.${user.id}`,
           },
           (payload) => {
-            console.log("Realtime payload:", payload);
-  
-            if (payload.eventType === "INSERT") {
-              setBookmarks((prev) => [payload.new, ...(prev || [])]);
-            }
-  
-            if (payload.eventType === "DELETE") {
-              setBookmarks((prev) =>
-                prev?.filter((b) => b.id !== payload.old.id)
-              );
-            }
+            console.log("Realtime:", payload);
+
+            setBookmarks((prev) => {
+              if (payload.eventType === "INSERT") {
+                if (prev.some((b) => b.id === payload.new.id)) return prev;
+                return [payload.new, ...prev];
+              }
+
+              if (payload.eventType === "DELETE") {
+                return prev.filter((b) => b.id !== payload.old.id);
+              }
+
+              if (payload.eventType === "UPDATE") {
+                return prev.map((b) =>
+                  b.id === payload.new.id ? payload.new : b
+                );
+              }
+
+              return prev;
+            });
           }
         )
         .subscribe((status) => {
           console.log("Realtime status:", status);
         });
-    };
-  
-    init();
-  
-    return () => {
-      if (channel) {
-        supabase.removeChannel(channel);
-      }
-    };
-  }, [user]);
-  
-  
 
-    const handleDelete = async (id) => {
-        
-        try {
-            await deleteBookmark(id);
-            setBookmarks((prev) => prev.filter((b) => b.id !== id));
-            toast.success("Bookmark deleted successfully");
-        } catch (error) {
-            toast.error(error instanceof Error ? error.message : "Failed to delete");
-            loadBookmarks(); // rollback if failed
-        }
+      channelRef.current = channel;
+      subscribedRef.current = true;
+    };
+
+    setup();
+
+    return () => {
+      isMounted = false;
+
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
+      }
+
+      subscribedRef.current = false;
+    };
+  }, [user, supabase]);
+
+  // -------------------------
+  // Delete
+  // -------------------------
+  const handleDelete = async (id) => {
+    try {
+      await deleteBookmark(id);
+      setBookmarks((prev) => prev.filter((b) => b.id !== id));
+      toast.success("Deleted");
+    } catch {
+      toast.error("Delete failed");
+      loadBookmarks();
+    }
   };
 
-  if (bookmarks?.length === 0) {
+  // -------------------------
+  // UI
+  // -------------------------
+  if (loading) {
     return (
-      <div className="flex justify-center items-center border border-gray-200 border-[3px] border-dashed p-4 rounded mt-6 h-full">
-        <div className="flex flex-col items-center">
-          {/* <Bookmark className="w-8 h-8 text-gray-400" /> */}
-          <h3 className="text-lg font-semibold text-white">
-            No bookmarks yet
-          </h3>
-          <p className="text-gray-200 max-w-sm mt-2 mb-6">
-            You haven't saved any bookmarks. Click the button above to add your
-            first link to the dashboard.
-          </p>
-        </div>
-      </div>
+      <div className="animate-spin h-8 w-8 border-4 border-gray-300 border-t-black rounded-full mt-8 mx-auto" />
     );
   }
 
+  if (!bookmarks.length) {
+    return <p className="text-center mt-6">No bookmarks yet</p>;
+  }
+
   return (
-    <>
-        {
-            (loading && !bookmarks?.length)
-            ?
-            <div className="animate-spin h-8 w-8 border-4 border-gray-300 border-t-black rounded-full mt-8 mx-auto!">
+    <div className="mt-4">
+      {bookmarks.map((bookmark) => (
+        <div
+          key={bookmark.id}
+          className="mb-4 p-5 bg-gray-100 rounded-xl shadow-sm"
+        >
+          <div className="flex justify-between">
+            <h3 className="font-semibold truncate">
+              {bookmark.title}
+            </h3>
+            <div className="flex gap-3">
+              <FaExternalLinkAlt
+                className="text-blue-600 cursor-pointer"
+                onClick={() =>
+                  window.open(bookmark.url, "_blank")
+                }
+              />
+              <MdDeleteOutline
+                className="text-red-500 cursor-pointer"
+                onClick={() => handleDelete(bookmark.id)}
+              />
             </div>
-            :
-            <div className=" mt-4">
-            {bookmarks?.map((bookmark) => (
-                <div
-                key={bookmark.id}
-                className={`group flex mb-4 flex-col justify-between p-5 bg-gray-100 border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200`}
-                >
-                <div className="w-full">
-                        <div className="flex justify-between items-start w-full">
-                            <h3
-                                className="font-semibold text-gray-900 capitalize truncate pr-2"
-                                title={bookmark.title}
-                            >
-                                {bookmark.title}
-                            </h3>
-                            <div className="shrink-0 flex items-center gap-2">
-                                <FaExternalLinkAlt className="text-blue-600 cursor-pointer" onClick={ ()=>window.open(bookmark.url, "_blank")} />
-                                <MdDeleteOutline className="text-[23px] text-red-500 cursor-pointer" onClick={()=>handleDelete(bookmark.id)} />
-                            </div>
-                        </div>
-                        <p className="text-[13px] truncate text-blue-600">
-                        {bookmark.url}
-                        </p>
-                </div>
-                </div>
-            ))}
-            </div>
-        }
-    </>
+          </div>
+          <p className="text-sm text-blue-600 truncate">
+            {bookmark.url}
+          </p>
+        </div>
+      ))}
+    </div>
   );
 }
