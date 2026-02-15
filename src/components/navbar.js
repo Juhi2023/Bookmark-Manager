@@ -63,7 +63,6 @@ export function Navbar({ user }) {
                 className="text-sm text-gray-600 flex items-center gap-2 shrink-0 w-[100px] hover:text-red-600 hover:text-gray-900 cursor-pointer"
               >
                 <HiOutlineLogout className="w-5 h-5" />
-                Log Out
               </button>
           </div>
         </div>

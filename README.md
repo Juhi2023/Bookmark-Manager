@@ -158,63 +158,6 @@ npm run dev
 Open [http://localhost:3000](http://localhost:3000)
 
 
-
-## 🐛 Troubleshooting & Solutions
-
-### 1. Authentication Redirect Loop
-
-**Problem:** After Google login, app redirects to localhost instead of production URL.
-
-**Solution:**
-1. Go to Supabase Dashboard → **Settings** → **Site URL**
-2. Add your production URL: `https://bookmark-manager-juhi.vercel.app`
-3. Go to Google Cloud Console → **Credentials** → Your OAuth Client
-4. Add authorized redirect URI:
-   ```
-   https://bookmark-manager-juhi.vercel.app/auth/callback
-   ```
-5. Redeploy to Vercel
-
-### 2. Authentication Session Persistence
-
-**Problem:** User gets logged out on page refresh.
-
-**Solution:** Implemented Supabase SSR with custom middleware that refreshes sessions using `exchangeCodeForSession()` in the auth callback route (`src/app/auth/callback/route.ts`).
-
-### 3. Real-time Updates Not Working
-
-**Problem:** Bookmarks don't sync across tabs.
-
-**Solution:**
-- Added Supabase channel subscription with `postgres_changes` event listener
-- Applied RLS filters (`user_id=eq.${user.id}`) for security and targeting
-- Enabled table replication in Supabase Dashboard: **Database** → **Replication** → Enable `bookmarks` table
-
-### 4. Next.js 15+ cookies() API Changes
-
-**Problem:** TypeScript errors - `Property 'get' does not exist on type 'Promise<ReadonlyRequestCookies>'`
-
-**Solution:**
-- Added `await` before `cookies()` calls in `src/lib/supabase-server.ts`
-- Updated `createClient()` to be an async function
-
-### 5. OAuth Redirect URL Mismatch
-
-**Problem:** Google Auth fails with redirect URI error.
-
-**Solution:**
-- Supabase expects: `https://[project-ref].supabase.co/auth/v1/callback`
-- Google Cloud Console needs the exact same URL in authorized redirect URIs
-
-### 6. Build Errors on Vercel
-
-**Problem:** Build fails with missing environment variables.
-
-**Solution:** Ensure all environment variables are added in Vercel project settings:
-- Go to Vercel Dashboard → Project → **Settings** → **Environment Variables**
-- Add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- Select all environments (Production, Preview, Development)
-
 ## 📝 Database Schema
 
 ```sql
