@@ -26,7 +26,16 @@ export default function RootLayout({ children }) {
       >
         <SupabaseProvider>
           {children}
-          <Toaster/>
+          <Toaster
+            toastOptions={{
+              style: {
+                background: "#1f2937", // gray-800
+                color: "#fff",
+                border: "1px solid #374151", // gray-700
+              },
+            }}
+            position="bottom-center"
+          />
         </SupabaseProvider>
       </body>
     </html>
