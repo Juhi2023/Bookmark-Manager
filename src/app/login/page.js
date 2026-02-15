@@ -51,7 +51,6 @@ function Login() {
             Save and organize your favorite links in one place
           </div>
         </div>
-{console.log(`${process.env.NEXT_PUBLIC_URL}/auth/callback`)}
         <Auth
           supabaseClient={supabase}
           providers={["google"]}

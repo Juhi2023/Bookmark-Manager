@@ -1,78 +1,26 @@
-# 🔖 Bookmark Manager
+# Bookmark Manager
 
 A modern, real-time bookmark manager built with Next.js 15, Supabase, and Tailwind CSS.
 
-![Bookmark Manager Demo](docs/demo-screenshot.png)
 
-## ✨ Features
+## Features
 
-- 🔐 **Google Authentication only** — Secure, passwordless login
-- 📚 **Add & Delete bookmarks** — Store URLs with custom titles
-- 🔒 **Private by default** — Row Level Security (RLS) ensures data isolation
-- ⚡ **Real-time sync** — Changes appear instantly across all devices/tabs
-- 🎨 **Modern UI** — Beautiful gradient design with responsive layout
-- 🚀 **Production ready** — Deployed on Vercel with automatic deployments
+- Google Authentication 
+- Add & Delete bookmarks
+- Real-time sync
+- Production ready — Deployed on Vercel
 
 ## 🚀 Live Demo
 
-**[https://bookmark-manager-inky.vercel.app](https://bookmark-manager-inky.vercel.app)**
+**[https://bookmark-manager-juhi.vercel.app](https://bookmark-manager-juhi.vercel.app)**
 
-## 🔗 Project Links
-
-| Service | URL |
-|---------|-----|
-| **Production App** | https://bookmark-manager-inky.vercel.app |
-| **GitHub Repository** | https://github.com/Aazen45v/bookmark-manager |
-| **Supabase Project** | https://supabase.com/dashboard/project/tnqahabqivagmnoiyskk |
 
 ## 🛠️ Tech Stack
-
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| **Next.js** | 15 | React framework with App Router, SSR support |
-| **React** | 19 | UI library |
-| **Supabase** | Latest | Auth, Database, Realtime subscriptions |
-| **Tailwind CSS** | Latest | Utility-first styling |
-| **Vercel** | Latest | Deployment and CI/CD |
-
-## 📸 Demo Screenshots
-
-### Login Page
-![Login Page](docs/login-page.png)
-*Professional gradient design with Google Sign-In*
-
-### Dashboard
-![Dashboard](docs/dashboard.png)
-*Clean, modern interface with real-time sync*
-
-### Add Bookmark
-![Add Bookmark](docs/add-bookmark.png)
-*Simple and intuitive bookmark creation*
-
-*(Add your own screenshots to the `docs/` folder)*
-
-## 🎨 UI/UX Highlights
-
-- **Gradient backgrounds** — Modern indigo-to-purple color scheme
-- **Responsive design** — Works perfectly on mobile, tablet, and desktop
-- **Loading states** — Smooth spinners and transitions
-- **Interactive feedback** — Hover effects, shadows, and animations
-- **Accessible** — Semantic HTML and keyboard navigation support
-
-Test the app with your Google account. All data is private and isolated per user.
-
-## ⚡ Real-time Demonstration
-
-To see real-time sync in action:
-
-1. Open the app in **two different browser tabs** or devices
-2. Sign in with the **same Google account** in both
-3. Add a bookmark in Tab A
-4. Watch it **appear instantly** in Tab B without refreshing
-5. Delete a bookmark in Tab B
-6. Watch it **disappear** from Tab A
-
-This is powered by **Supabase Realtime** subscriptions with PostgreSQL replication.
+- Next.js
+- React
+- Supabase
+- Tailwind CSS
+- Vercel
 
 ## 🏗️ Project Structure
 
@@ -85,12 +33,11 @@ bookmark-manager/
 │   │   ├── globals.css            # Global styles
 │   │   └── auth/
 │   │       ├── callback/
-│   │       │   └── route.ts       # OAuth callback handler
-│   │       └── auth-code-error/
-│   │           └── page.tsx        # Auth error page
+│   │           └── route.ts       # OAuth callback handler
+
 │   ├── lib/
-│   │   ├── supabase-client.ts     # Browser client
-│   │   └── supabase-server.ts     # Server client for SSR
+│   │   ├── supabase-browser-client.ts     # Browser client
+│   │   └── supabase-server-client.ts     # Server client for SSR
 │   ├── middleware.ts               # Session refresh middleware
 │   └── components/                # (optional) reusable components
 ├── supabase/
@@ -210,29 +157,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000)
 
-### 7. Deploy to Vercel
 
-The easiest way to deploy is with [Vercel](https://vercel.com):
-
-```bash
-# Install Vercel CLI
-npm i -g vercel
-
-# Login and deploy
-vercel --prod
-```
-
-During deployment, add these environment variables in Vercel dashboard:
-
-| Variable | Value |
-|----------|-------|
-| `NEXT_PUBLIC_SUPABASE_URL` | https://tnqahabqivagmnoiyskk.supabase.co |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your Supabase anon key |
-
-#### Production URL
-**App:** https://bookmark-manager-inky.vercel.app  
-**Repo:** https://github.com/Aazen45v/bookmark-manager  
-**Supabase Project ID:** tnqahabqivagmnoiyskk
 
 ## 🐛 Troubleshooting & Solutions
 
@@ -242,11 +167,11 @@ During deployment, add these environment variables in Vercel dashboard:
 
 **Solution:**
 1. Go to Supabase Dashboard → **Settings** → **Site URL**
-2. Add your production URL: `https://bookmark-manager-inky.vercel.app`
+2. Add your production URL: `https://bookmark-manager-juhi.vercel.app`
 3. Go to Google Cloud Console → **Credentials** → Your OAuth Client
 4. Add authorized redirect URI:
    ```
-   https://bookmark-manager-inky.vercel.app/auth/callback
+   https://bookmark-manager-juhi.vercel.app/auth/callback
    ```
 5. Redeploy to Vercel
 
@@ -290,9 +215,7 @@ During deployment, add these environment variables in Vercel dashboard:
 - Add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - Select all environments (Production, Preview, Development)
 
-## 📝 API Reference
-
-### Database Schema
+## 📝 Database Schema
 
 ```sql
 Table: bookmarks
@@ -310,22 +233,3 @@ Table: bookmarks
 | SELECT | User can only view own bookmarks |
 | INSERT | User can only insert their own bookmarks |
 | DELETE | User can only delete their own bookmarks |
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 📄 License
-
-MIT License - feel free to use this for your own projects!
-
-## 👨‍💻 Author
-
-**Mohammad Aazen**
-- GitHub: [@Aazen45v](https://github.com/Aazen45v)
-- LinkedIn: [aazen](https://www.linkedin.com/in/aazen/)
-- Email: mohdaazen@gmail.com
-
----
-
-Built with ❤️ for the Abstrabit Fullstack Interview Challenge
