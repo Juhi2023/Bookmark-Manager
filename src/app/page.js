@@ -4,12 +4,12 @@ import { AddBookmarkForm } from "@/components/add-bookmark";
 import BookmarksList from "@/components/bookmarksList";
 import Loader from "@/components/loader";
 import { Navbar } from "@/components/navbar";
-import { createSupabaseBrowserClient } from "@/config/supabaseBrowserClient";
 import { useEffect, useState } from "react";
+import { useSupabase } from "@/components/supabase-provider";
 
 const Home = () => {
   const [user, setUser] = useState(null)
-  const [supabase, setSupabase] = useState(createSupabaseBrowserClient())
+  const supabase = useSupabase();
 
   useEffect(() => {
 
@@ -27,7 +27,7 @@ const Home = () => {
     })
 
     return () => subscription.unsubscribe()
-  }, [])
+  }, [supabase])
 
   if (!user) {
       return (
@@ -48,7 +48,7 @@ const Home = () => {
           <div className="text-2xl font-semibold text-white mt-[60px]">
             Bookmarks....
           </div>
-          <BookmarksList supabase={supabase}/>
+          {user && <BookmarksList user={user} supabase={supabase}/>}
         </div>
       </>
     );

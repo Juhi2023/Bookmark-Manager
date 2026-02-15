@@ -2,15 +2,16 @@
 
 import { HiOutlineLogout, HiUser } from "react-icons/hi";
 import { useRouter } from 'next/navigation'
-import { createSupabaseBrowserClient } from "@/config/supabaseBrowserClient";
 import toast from "react-hot-toast";
 import { MdBookmarks } from "react-icons/md";
+import { useSupabase } from "./supabase-provider";
 
 export function Navbar({ user }) {
   const router = useRouter()
+  const supabase = useSupabase();
 
   const handleSignOut = async () => {
-    // await createSupabaseBrowserClient().auth.signOut()
+    await supabase.auth.signOut()
     router.push('/')
     toast.success('Signed out successfully')
   }

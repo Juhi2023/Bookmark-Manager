@@ -3,16 +3,16 @@
 import { useEffect, useState } from "react";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
-import { createSupabaseBrowserClient } from "@/config/supabaseBrowserClient";
 import { MdBookmarks } from "react-icons/md";
 import Loader from "@/components/loader";
+import { useSupabase } from "@/components/supabase-provider";
 
 function Login() {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
+  const supabase = useSupabase();
 
   useEffect(() => {
-    let supabase = createSupabaseBrowserClient()
     const getSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
@@ -53,7 +53,7 @@ function Login() {
         </div>
 
         <Auth
-          supabaseClient={createSupabaseBrowserClient()}
+          supabaseClient={supabase}
           providers={["google"]}
           onlyThirdPartyProviders
           redirectTo={process.env.NEXT_PUBLIC_URL + "/auth/callback"}

@@ -6,7 +6,7 @@ import { FaExternalLinkAlt } from "react-icons/fa";
 import { MdDeleteOutline } from "react-icons/md";
 import toast from "react-hot-toast";
 
-export default function BookmarksList({supabase}) {
+export default function BookmarksList({user, supabase}) {
   const [bookmarks, setBookmarks] = useState(null);
   const [loading, setLoading] = useState(true)
 
@@ -26,16 +26,11 @@ export default function BookmarksList({supabase}) {
     let channel;
   
     const init = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-  
       if (!user) return;
-  
       await loadBookmarks();
   
       channel = supabase
-        .channel(`bm-${user.id}`)
+        .channel("realtime")
         .on(
           "postgres_changes",
           {
@@ -70,7 +65,7 @@ export default function BookmarksList({supabase}) {
         supabase.removeChannel(channel);
       }
     };
-  }, [supabase]);
+  }, [user]);
   
   
 
@@ -106,7 +101,7 @@ export default function BookmarksList({supabase}) {
   return (
     <>
         {
-            loading
+            (loading && !bookmarks?.length)
             ?
             <div className="animate-spin h-8 w-8 border-4 border-gray-300 border-t-black rounded-full mt-8 mx-auto!">
             </div>
